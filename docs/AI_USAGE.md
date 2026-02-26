@@ -144,6 +144,16 @@ This was a discussion prompt, not a generation prompt. The model recommended sti
 - Implemented cold-start logic in `index.js` to synchronously copy the read-only packaged `boardgame_cafe.db` to Vercel's `/tmp` Ephemeral block storage so queries execute smoothly.
 - Successfully achieved live database deployment at `https://board-game-cafe-vibe-coded.vercel.app`.
 
+### Prompt 10: Translating Diagrams to Mermaid and Generating Assets
+
+> **User prompt:** "Please translate the diagrams to use mermaid or a similar language. Also, make sure to use UML class diagram... For the ERD, use the Crow's foot syntax... We also want to generate png files of the diagrams... Save the mmd code... commit and push, including the changes I made to the rules"
+
+**What the model did:**
+- Replaced the static PNG diagram links in `README.md` with dynamic Mermaid `classDiagram` and `erDiagram` syntax blocks.
+- Used `@mermaid-js/mermaid-cli` via `npx` to compile the Mermaid code back into transparent PNG files.
+- Saved the original `.mmd` source files inside the `diagrams/` folder alongside the generated PNGs to enable easy future edits.
+- Committed all diagram updates, as well as the user's manual modifications to `.agent/rules/project-rules.md`, and pushed everything to the repository.
+
 ---
 
 ## 3. What the AI Did Well
@@ -156,7 +166,7 @@ This was a discussion prompt, not a generation prompt. The model recommended sti
 
 ## 4. What the AI Did Poorly or Couldn't Do
 
-- **Diagram generation originally produced static SVG/PNG files.** The UML and ERD diagrams were initially generated as fragile SVG markup which took multiple iterations to fix. However, the user subsequently instructed the AI to rewrite these explicitly into dynamic **Mermaid.js** syntax natively inside `README.md`, which completely resolved the maintainability and rendering concerns without needing external software like LucidChart.
+- **Diagram generation originally produced static SVG/PNG files.** The UML and ERD diagrams were initially generated as fragile SVG markup which took multiple iterations to fix. However, the user subsequently instructed the AI to rewrite these explicitly into dynamic **Mermaid.js** syntax natively inside `README.md`, and then successfully instructed the AI to compile those `.mmd` files back into standard PNGs using `@mermaid-js/mermaid-cli` for static viewing. This completely resolved the maintainability and rendering concerns without needing external software like LucidChart.
 - **Requirements PDF is generated, not written.** A human writing the requirements document would likely think more carefully about edge cases and domain nuances. The AI-generated version is correct but formulaic.
 
 ## 5. What Still Requires Human Work

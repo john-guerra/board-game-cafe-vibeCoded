@@ -1,10 +1,15 @@
 ---
+trigger: always_on
 description: Core rules and guidelines for any AI coding assistant or agent interacting with the Board Game Café repository.
-prompt: true
 ---
+
 # Antigravity / AI Agent Guidelines
 
 This file contains the core rules and guidelines for any AI coding assistant or agent interacting with the Board Game Café repository.
+
+## 0. Preface
+
+- Any message you want to communicate with me, start it with a star emoji (⭐️). This is unless you are generating some special formats
 
 ## 1. AI Transparency & Logging (CRITICAL)
 - **MANDATORY RULE:** Every single AI prompt or significant interaction used to generate, debug, or modify code in this project MUST be logged in `docs/AI_USAGE.md`. 
