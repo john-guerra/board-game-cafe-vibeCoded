@@ -35,6 +35,12 @@ boardgame-cafe-db/
 │   ├── bcnf_schema.pdf        ← [Point 4] Relational schema + BCNF proof
 │   └── query_outputs.txt      ← [Point 7] Example outputs of all queries
 │
+├── diagrams/
+│   ├── uml_conceptual_model.png  ← [Point 2] Static PNG of UML Conceptual Model
+│   ├── uml_conceptual_model.mmd  ← [Point 2] Mermaid Source of UML
+│   ├── erd_logical_model.png     ← [Point 3] Static PNG of ERD Logical Model
+│   └── erd_logical_model.mmd     ← [Point 3] Mermaid Source of ERD
+│
 ├── sql/
 │   ├── create_tables.sql      ← [Point 5] DDL statements
 │   ├── populate_data.sql      ← [Point 6] Test data
@@ -127,6 +133,8 @@ classDiagram
     SessionPlayer .. PlaySession
 ```
 
+*(Also available as a static graphic: [`diagrams/uml_conceptual_model.png`](diagrams/uml_conceptual_model.png))*
+
 Five classes with full multiplicity constraints and typed attributes:
 - **1:N** — Publisher publishes Games
 - **M:N** — Game is classified into Categories
@@ -194,6 +202,8 @@ erDiagram
         TEXT comment
     }
 ```
+
+*(Also available as a static graphic: [`diagrams/erd_logical_model.png`](diagrams/erd_logical_model.png))*
 
 Uses Crow's Foot notation. All M:N relationships resolved into association entities:
 - **GameCategory** resolves Game ↔ Category

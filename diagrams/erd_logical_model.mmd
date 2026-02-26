@@ -1,0 +1,57 @@
+erDiagram
+    PUBLISHER ||--o{ GAME : publishes
+    GAME ||--o{ PLAY_SESSION : played_in
+    GAME ||--o{ GAME_CATEGORY : categorized_as
+    CATEGORY ||--o{ GAME_CATEGORY : categorizes
+    PLAY_SESSION ||--o{ SESSION_PLAYER : includes
+    MEMBER ||--o{ SESSION_PLAYER : participates_in
+
+    PUBLISHER {
+        INTEGER publisher_id PK
+        TEXT name
+        TEXT country
+        TEXT website
+        INTEGER founded_year
+    }
+    GAME {
+        INTEGER game_id PK
+        TEXT title
+        INTEGER min_players
+        INTEGER max_players
+        INTEGER play_time_minutes
+        REAL complexity_rating
+        INTEGER year_published
+        INTEGER copies_owned
+        INTEGER is_available
+        INTEGER publisher_id FK
+    }
+    CATEGORY {
+        INTEGER category_id PK
+        TEXT name
+        TEXT description
+    }
+    PLAY_SESSION {
+        INTEGER session_id PK
+        INTEGER game_id FK
+        TEXT session_date
+        INTEGER duration_minutes
+        INTEGER table_number
+    }
+    MEMBER {
+        INTEGER member_id PK
+        TEXT first_name
+        TEXT last_name
+        TEXT email
+        TEXT phone
+        TEXT join_date
+    }
+    GAME_CATEGORY {
+        INTEGER game_id PK,FK
+        INTEGER category_id PK,FK
+    }
+    SESSION_PLAYER {
+        INTEGER session_id PK,FK
+        INTEGER member_id PK,FK
+        INTEGER rating
+        TEXT comment
+    }

@@ -1,0 +1,57 @@
+classDiagram
+    class Publisher {
+        publisher_id: INTEGER
+        name: TEXT
+        country: TEXT
+        website: TEXT
+        founded_year: INTEGER
+    }
+    class Game {
+        game_id: INTEGER
+        title: TEXT
+        min_players: INTEGER
+        max_players: INTEGER
+        play_time_minutes: INTEGER
+        complexity_rating: REAL
+        year_published: INTEGER
+        copies_owned: INTEGER
+        is_available: INTEGER
+    }
+    class Category {
+        category_id: INTEGER
+        name: TEXT
+        description: TEXT
+    }
+    class Member {
+        member_id: INTEGER
+        first_name: TEXT
+        last_name: TEXT
+        email: TEXT
+        phone: TEXT
+        join_date: TEXT
+    }
+    class PlaySession {
+        session_id: INTEGER
+        session_date: TEXT
+        duration_minutes: INTEGER
+        table_number: INTEGER
+    }
+    class GameCategory {
+        <<Association>>
+    }
+    class SessionPlayer {
+        <<Association>>
+        rating: INTEGER
+        comment: TEXT
+    }
+
+    Publisher "1" o-- "*" Game : publishes
+    Game "1" *-- "*" PlaySession : played in
+    
+    Category "*" -- "*" Game : classified as
+    GameCategory .. Category
+    GameCategory .. Game
+
+    Member "*" -- "*" PlaySession : participates in
+    SessionPlayer .. Member
+    SessionPlayer .. PlaySession
