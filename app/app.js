@@ -51,7 +51,10 @@ function queryOne(sql, params = []) {
 }
 
 // ── HOME ─────────────────────────────────────────────────────
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
+  if (process.env.NODE_ENV === "production" && !db) {
+    await initDB();
+  }
   const stats = {
     publishers: queryOne("SELECT COUNT(*) AS n FROM Publisher").n,
     games:      queryOne("SELECT COUNT(*) AS n FROM Game").n,
@@ -65,7 +68,10 @@ app.get("/", (req, res) => {
 //  PUBLISHER CRUD
 // ══════════════════════════════════════════════════════════════
 
-app.get("/publishers", (req, res) => {
+app.get("/publishers", async (req, res) => {
+  if (process.env.NODE_ENV === "production" && !db) {
+    await initDB();
+  }
   const publishers = queryAll(`
     SELECT p.*, COUNT(g.game_id) AS game_count
     FROM Publisher p LEFT JOIN Game g ON p.publisher_id = g.publisher_id
@@ -73,11 +79,17 @@ app.get("/publishers", (req, res) => {
   res.render("publishers/index", { publishers, message: req.query.message || null });
 });
 
-app.get("/publishers/new", (req, res) => {
+app.get("/publishers/new", async (req, res) => {
+  if (process.env.NODE_ENV === "production" && !db) {
+    await initDB();
+  }
   res.render("publishers/form", { publisher: null, error: null });
 });
 
-app.post("/publishers", (req, res) => {
+app.post("/publishers", async (req, res) => {
+  if (process.env.NODE_ENV === "production" && !db) {
+    await initDB();
+  }
   const { name, country, website, founded_year } = req.body;
   try {
     db.run(
@@ -91,7 +103,10 @@ app.post("/publishers", (req, res) => {
   }
 });
 
-app.get("/publishers/:id/edit", (req, res) => {
+app.get("/publishers/:id/edit", async (req, res) => {
+  if (process.env.NODE_ENV === "production" && !db) {
+    await initDB();
+  }
   const publisher = queryOne(
     "SELECT * FROM Publisher WHERE publisher_id = ?", [Number(req.params.id)]
   );
@@ -99,7 +114,10 @@ app.get("/publishers/:id/edit", (req, res) => {
   res.render("publishers/form", { publisher, error: null });
 });
 
-app.post("/publishers/:id", (req, res) => {
+app.post("/publishers/:id", async (req, res) => {
+  if (process.env.NODE_ENV === "production" && !db) {
+    await initDB();
+  }
   const { name, country, website, founded_year } = req.body;
   try {
     db.run(
@@ -117,7 +135,10 @@ app.post("/publishers/:id", (req, res) => {
   }
 });
 
-app.post("/publishers/:id/delete", (req, res) => {
+app.post("/publishers/:id/delete", async (req, res) => {
+  if (process.env.NODE_ENV === "production" && !db) {
+    await initDB();
+  }
   const id = Number(req.params.id);
   // Application-level FK check (sql.js WASM doesn't enforce FK reliably)
   const gameCount = queryOne(
@@ -144,7 +165,10 @@ app.post("/publishers/:id/delete", (req, res) => {
 //  GAME CRUD
 // ══════════════════════════════════════════════════════════════
 
-app.get("/games", (req, res) => {
+app.get("/games", async (req, res) => {
+  if (process.env.NODE_ENV === "production" && !db) {
+    await initDB();
+  }
   const games = queryAll(`
     SELECT g.*, p.name AS publisher_name
     FROM Game g INNER JOIN Publisher p ON g.publisher_id = p.publisher_id
@@ -152,12 +176,18 @@ app.get("/games", (req, res) => {
   res.render("games/index", { games, message: req.query.message || null });
 });
 
-app.get("/games/new", (req, res) => {
+app.get("/games/new", async (req, res) => {
+  if (process.env.NODE_ENV === "production" && !db) {
+    await initDB();
+  }
   const publishers = queryAll("SELECT publisher_id, name FROM Publisher ORDER BY name");
   res.render("games/form", { game: null, publishers, error: null });
 });
 
-app.post("/games", (req, res) => {
+app.post("/games", async (req, res) => {
+  if (process.env.NODE_ENV === "production" && !db) {
+    await initDB();
+  }
   const b = req.body;
   try {
     db.run(
@@ -179,14 +209,20 @@ app.post("/games", (req, res) => {
   }
 });
 
-app.get("/games/:id/edit", (req, res) => {
+app.get("/games/:id/edit", async (req, res) => {
+  if (process.env.NODE_ENV === "production" && !db) {
+    await initDB();
+  }
   const game = queryOne("SELECT * FROM Game WHERE game_id = ?", [Number(req.params.id)]);
   if (!game) return res.status(404).send("Game not found");
   const publishers = queryAll("SELECT publisher_id, name FROM Publisher ORDER BY name");
   res.render("games/form", { game, publishers, error: null });
 });
 
-app.post("/games/:id", (req, res) => {
+app.post("/games/:id", async (req, res) => {
+  if (process.env.NODE_ENV === "production" && !db) {
+    await initDB();
+  }
   const b = req.body;
   try {
     db.run(
@@ -210,7 +246,10 @@ app.post("/games/:id", (req, res) => {
   }
 });
 
-app.post("/games/:id/delete", (req, res) => {
+app.post("/games/:id/delete", async (req, res) => {
+  if (process.env.NODE_ENV === "production" && !db) {
+    await initDB();
+  }
   const id = Number(req.params.id);
   // Application-level FK check
   const sessionCount = queryOne(
@@ -241,15 +280,7 @@ if (process.env.NODE_ENV !== "production") {
     });
   });
 } else {
-  // Setup for Vercel: We need to load the DB synchronously when the serverless function cold starts
-  // or return the app so Vercel can manage it
-  const SQL = require("sql.js");
-  SQL().then((sql) => {
-    const buf = fs.readFileSync(DB_PATH);
-    db = new sql.Database(buf);
-    db.run("PRAGMA foreign_keys = ON;");
-    console.log(`Database loaded from ${DB_PATH} for Vercel`);
-  });
+  // Expose the app. Routes will initialize DB on the first request if empty.
 }
 
 // Export for Vercel
