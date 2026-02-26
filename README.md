@@ -35,10 +35,6 @@ boardgame-cafe-db/
 │   ├── bcnf_schema.pdf        ← [Point 4] Relational schema + BCNF proof
 │   └── query_outputs.txt      ← [Point 7] Example outputs of all queries
 │
-├── diagrams/
-│   ├── uml_conceptual_model.png  ← [Point 2] UML Class Diagram
-│   └── erd_logical_model.png     ← [Point 3] ERD (Crow's Foot notation)
-│
 ├── sql/
 │   ├── create_tables.sql      ← [Point 5] DDL statements
 │   ├── populate_data.sql      ← [Point 6] Test data
@@ -71,9 +67,65 @@ Describes the Meeple Lounge business domain, lists 10 business rules, and extrac
 
 ### Point 2 — UML Conceptual Model (15 pts)
 
-**File:** [`diagrams/uml_conceptual_model.png`](diagrams/uml_conceptual_model.png)
+```mermaid
+classDiagram
+    class Publisher {
+        publisher_id: INTEGER
+        name: TEXT
+        country: TEXT
+        website: TEXT
+        founded_year: INTEGER
+    }
+    class Game {
+        game_id: INTEGER
+        title: TEXT
+        min_players: INTEGER
+        max_players: INTEGER
+        play_time_minutes: INTEGER
+        complexity_rating: REAL
+        year_published: INTEGER
+        copies_owned: INTEGER
+        is_available: INTEGER
+    }
+    class Category {
+        category_id: INTEGER
+        name: TEXT
+        description: TEXT
+    }
+    class Member {
+        member_id: INTEGER
+        first_name: TEXT
+        last_name: TEXT
+        email: TEXT
+        phone: TEXT
+        join_date: TEXT
+    }
+    class PlaySession {
+        session_id: INTEGER
+        session_date: TEXT
+        duration_minutes: INTEGER
+        table_number: INTEGER
+    }
+    class GameCategory {
+        <<Association>>
+    }
+    class SessionPlayer {
+        <<Association>>
+        rating: INTEGER
+        comment: TEXT
+    }
 
-![UML Conceptual Model](diagrams/uml_conceptual_model.png)
+    Publisher "1" o-- "*" Game : publishes
+    Game "1" *-- "*" PlaySession : played in
+    
+    Category "*" -- "*" Game : classified as
+    GameCategory .. Category
+    GameCategory .. Game
+
+    Member "*" -- "*" PlaySession : participates in
+    SessionPlayer .. Member
+    SessionPlayer .. PlaySession
+```
 
 Five classes with full multiplicity constraints and typed attributes:
 - **1:N** — Publisher publishes Games
@@ -83,15 +135,69 @@ Five classes with full multiplicity constraints and typed attributes:
 
 ### Point 3 — Logical Data Model / ERD (10 pts)
 
-**File:** [`diagrams/erd_logical_model.png`](diagrams/erd_logical_model.png)
+```mermaid
+erDiagram
+    PUBLISHER ||--o{ GAME : publishes
+    GAME ||--o{ PLAY_SESSION : played_in
+    GAME ||--o{ GAME_CATEGORY : categorized_as
+    CATEGORY ||--o{ GAME_CATEGORY : categorizes
+    PLAY_SESSION ||--o{ SESSION_PLAYER : includes
+    MEMBER ||--o{ SESSION_PLAYER : participates_in
 
-![ERD Logical Model](diagrams/erd_logical_model.png)
+    PUBLISHER {
+        INTEGER publisher_id PK
+        TEXT name
+        TEXT country
+        TEXT website
+        INTEGER founded_year
+    }
+    GAME {
+        INTEGER game_id PK
+        TEXT title
+        INTEGER min_players
+        INTEGER max_players
+        INTEGER play_time_minutes
+        REAL complexity_rating
+        INTEGER year_published
+        INTEGER copies_owned
+        INTEGER is_available
+        INTEGER publisher_id FK
+    }
+    CATEGORY {
+        INTEGER category_id PK
+        TEXT name
+        TEXT description
+    }
+    PLAY_SESSION {
+        INTEGER session_id PK
+        INTEGER game_id FK
+        TEXT session_date
+        INTEGER duration_minutes
+        INTEGER table_number
+    }
+    MEMBER {
+        INTEGER member_id PK
+        TEXT first_name
+        TEXT last_name
+        TEXT email
+        TEXT phone
+        TEXT join_date
+    }
+    GAME_CATEGORY {
+        INTEGER game_id PK,FK
+        INTEGER category_id PK,FK
+    }
+    SESSION_PLAYER {
+        INTEGER session_id PK,FK
+        INTEGER member_id PK,FK
+        INTEGER rating
+        TEXT comment
+    }
+```
 
 Uses Crow's Foot notation. All M:N relationships resolved into association entities:
 - **GameCategory** resolves Game ↔ Category
 - **SessionPlayer** resolves PlaySession ↔ Member (carries `rating` and `comment` attributes)
-
-> **Note:** This ERD was generated programmatically. To recreate in LucidChart, import the entities and relationships shown above.
 
 ### Point 4 — Relational Schema in BCNF (15 pts)
 
