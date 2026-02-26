@@ -1,6 +1,10 @@
+---
+description: Core rules and guidelines for any AI coding assistant or agent interacting with the Board Game Café repository.
+prompt: true
+---
 # Antigravity / AI Agent Guidelines
 
-This file (`AGENTS.md`) contains the core rules and guidelines for any AI coding assistant or agent interacting with the Board Game Café repository.
+This file contains the core rules and guidelines for any AI coding assistant or agent interacting with the Board Game Café repository.
 
 ## 1. AI Transparency & Logging (CRITICAL)
 - **MANDATORY RULE:** Every single AI prompt or significant interaction used to generate, debug, or modify code in this project MUST be logged in `docs/AI_USAGE.md`. 

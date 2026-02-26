@@ -1,5 +1,5 @@
 # Cursor Rules
 
-Please refer strictly to the `AGENTS.md` file located in the root of this repository for instructions, rules, and guidelines on how to interact with this project.
+Please refer strictly to the `.agent/rules/project-rules.md` file located in this repository for instructions, rules, and guidelines on how to interact with this project.
 
 Specifically, you MUST remember to log all AI prompts and operations in `docs/AI_USAGE.md`.

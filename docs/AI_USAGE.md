@@ -111,7 +111,17 @@ This was a discussion prompt, not a generation prompt. The model recommended sti
 - Executed `git add`, `git commit`, and `git push` to save the directory structure reorganization and EJS views into version control.
 - Updated this very document (`docs/AI_USAGE.md`) to append these recent interactions.
 - Created an `AGENTS.md` file to define consistent workspace rules and guidelines for AI agents, specifically mandating that all future AI interactions be logged.
-- Created `.antigravityrules` and `.cursorrules` containing directives that force any AI agent to read `AGENTS.md` before making changes.
+### Prompt 7: Migrating to New Antigravity Rules Format
+
+> **User prompt:** "I think antigravity rules work differently now, see your own documentation https://antigravity.google/docs/rules-workflows"
+
+**What the model did:**
+- Used a browser subagent to navigate to and read the documentation at `https://antigravity.google/docs/rules-workflows` because it was a Javascript-heavy single-page application.
+- Learned that workspace rules should now reside in `.agent/rules/` and use specific markdown frontmatter.
+- Created `.agent/rules/project-rules.md` (with `prompt: true` frontmatter) containing the guidelines originally specified in `AGENTS.md`.
+- Deleted the now-deprecated `.antigravityrules` and `AGENTS.md` files from the root.
+- Updated `.cursorrules` to point to the new `.agent/rules/project-rules.md` file.
+- Updated `docs/AI_USAGE.md` to log this interaction and committed the changes.
 
 ---
 
