@@ -1,0 +1,73 @@
+<%- include('../partials/header') %>
+
+<h2><%= game ? 'Edit Game' : 'New Game' %></h2>
+
+<% if (error) { %>
+  <div class="alert alert-danger"><%= error %></div>
+<% } %>
+
+<div class="card">
+  <div class="card-body">
+    <form action="<%= game ? '/games/' + (game.game_id || game.id) : '/games' %>" method="POST">
+      
+      <div class="mb-3">
+        <label class="form-label">Title*</label>
+        <input type="text" name="title" class="form-control" value="<%= game ? game.title : '' %>" required>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label">Publisher*</label>
+        <select name="publisher_id" class="form-select" required>
+          <option value="">-- Select Publisher --</option>
+          <% publishers.forEach(p => { %>
+            <option value="<%= p.publisher_id %>" <%= game && game.publisher_id == p.publisher_id ? 'selected' : '' %>><%= p.name %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Min Players*</label>
+          <input type="number" name="min_players" class="form-control" value="<%= game ? game.min_players : '1' %>" min="1" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Max Players*</label>
+          <input type="number" name="max_players" class="form-control" value="<%= game ? game.max_players : '4' %>" min="1" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Play Time (minutes)</label>
+          <input type="number" name="play_time_minutes" class="form-control" value="<%= game ? game.play_time_minutes : '' %>" min="1">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Complexity (1.0 - 5.0)</label>
+          <input type="number" name="complexity_rating" class="form-control" value="<%= game ? game.complexity_rating : '' %>" min="1.0" max="5.0" step="0.1">
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Year Published</label>
+          <input type="number" name="year_published" class="form-control" value="<%= game ? game.year_published : '' %>" min="1000" max="2100">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Copies Owned*</label>
+          <input type="number" name="copies_owned" class="form-control" value="<%= game ? game.copies_owned : '1' %>" min="1" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" name="is_available" value="1" <%= (game && game.is_available) || !game ? 'checked' : '' %>>
+            <label class="form-check-label">Is Available</label>
+          </div>
+        </div>
+      </div>
+      
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="/games" class="btn btn-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

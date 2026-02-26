@@ -1,0 +1,35 @@
+<%- include('../partials/header') %>
+
+<h2><%= publisher ? 'Edit Publisher' : 'New Publisher' %></h2>
+
+<% if (error) { %>
+  <div class="alert alert-danger"><%= error %></div>
+<% } %>
+
+<div class="card">
+  <div class="card-body">
+    <form action="<%= publisher ? '/publishers/' + (publisher.publisher_id || publisher.id) : '/publishers' %>" method="POST">
+      <div class="mb-3">
+        <label class="form-label">Name*</label>
+        <input type="text" name="name" class="form-control" value="<%= publisher ? publisher.name : '' %>" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Country*</label>
+        <input type="text" name="country" class="form-control" value="<%= publisher ? publisher.country : '' %>" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Website</label>
+        <input type="url" name="website" class="form-control" value="<%= publisher ? publisher.website : '' %>">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Founded Year</label>
+        <input type="number" name="founded_year" class="form-control" value="<%= publisher ? publisher.founded_year : '' %>" min="1000" max="2100">
+      </div>
+      
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="/publishers" class="btn btn-secondary">Cancel</a>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

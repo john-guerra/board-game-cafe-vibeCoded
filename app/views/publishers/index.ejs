@@ -1,0 +1,47 @@
+<%- include('../partials/header') %>
+
+<h2>Publishers</h2>
+
+<% if (message) { %>
+  <div class="alert alert-info"><%= message %></div>
+<% } %>
+
+<div class="mb-3">
+  <a href="/publishers/new" class="btn btn-primary">Add Publisher</a>
+</div>
+
+<table class="table table-striped text-center align-middle">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Country</th>
+      <th>Website</th>
+      <th>Founded</th>
+      <th>Games</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% publishers.forEach(p => { %>
+      <tr>
+        <td><%= p.name %></td>
+        <td><%= p.country %></td>
+        <td>
+          <% if (p.website) { %>
+            <a href="<%= p.website %>" target="_blank">Link</a>
+          <% } %>
+        </td>
+        <td><%= p.founded_year %></td>
+        <td><%= p.game_count %></td>
+        <td>
+          <a href="/publishers/<%= p.publisher_id %>/edit" class="btn btn-sm btn-outline-secondary">Edit</a>
+          <form action="/publishers/<%= p.publisher_id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this publisher?');">
+            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<%- include('../partials/footer') %>

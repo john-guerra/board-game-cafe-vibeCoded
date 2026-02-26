@@ -1,0 +1,55 @@
+<%- include('../partials/header') %>
+
+<h2>Games</h2>
+
+<% if (message) { %>
+  <div class="alert alert-info"><%= message %></div>
+<% } %>
+
+<div class="mb-3">
+  <a href="/games/new" class="btn btn-primary">Add Game</a>
+</div>
+
+<table class="table table-striped text-center align-middle">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Publisher</th>
+      <th>Players</th>
+      <th>Play Time (m)</th>
+      <th>Complexity</th>
+      <th>Year</th>
+      <th>Copies</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% games.forEach(g => { %>
+      <tr>
+        <td><strong><%= g.title %></strong></td>
+        <td><%= g.publisher_name %></td>
+        <td><%= g.min_players %> - <%= g.max_players %></td>
+        <td><%= g.play_time_minutes || '-' %></td>
+        <td><%= g.complexity_rating || '-' %></td>
+        <td><%= g.year_published || '-' %></td>
+        <td><%= g.copies_owned %></td>
+        <td>
+          <% if (g.is_available) { %>
+            <span class="badge bg-success">Available</span>
+          <% } else { %>
+            <span class="badge bg-danger">Checked Out</span>
+          <% } %>
+        </td>
+        <td>
+          <a href="/games/<%= g.game_id %>/edit" class="btn btn-sm btn-outline-secondary">Edit</a>
+          <form action="/games/<%= g.game_id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Delete this game?');">
+            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<%- include('../partials/footer') %>

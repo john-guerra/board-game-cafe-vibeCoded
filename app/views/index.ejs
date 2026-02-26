@@ -1,0 +1,39 @@
+<%- include('partials/header') %>
+
+<div class="p-5 mb-4 bg-light rounded-3">
+  <div class="container-fluid py-5">
+    <h1 class="display-5 fw-bold">Welcome to The Meeple Lounge Admin</h1>
+    <p class="col-md-8 fs-4">Database Management Dashboard</p>
+  </div>
+</div>
+
+<div class="row align-items-md-stretch">
+  <div class="col-md-3">
+    <div class="h-100 p-5 text-white bg-primary rounded-3 text-center">
+      <h2><%= stats.publishers %></h2>
+      <p>Publishers</p>
+      <a class="btn btn-outline-light" href="/publishers">Manage Publishers</a>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="h-100 p-5 bg-light border rounded-3 text-center">
+      <h2><%= stats.games %></h2>
+      <p>Games</p>
+      <a class="btn btn-outline-secondary" href="/games">Manage Games</a>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="h-100 p-5 bg-light border rounded-3 text-center">
+      <h2><%= stats.members %></h2>
+      <p>Members</p>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="h-100 p-5 bg-light border rounded-3 text-center">
+      <h2><%= stats.sessions %></h2>
+      <p>Play Sessions</p>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
