@@ -4,11 +4,9 @@ const fs = require("fs");
 const initSqlJs = require("sql.js");
 
 const app = express();
-const PORT = 3000;
-
-// Database lives at the repository root
+// Database lives at the app level
 // In Vercel, the file system is read-only. We rely on the bundled SQLite file.
-const DB_PATH = path.join(__dirname, "..", "boardgame_cafe.db");
+const DB_PATH = path.join(__dirname, "boardgame_cafe.db");
 
 // ── Middleware ────────────────────────────────────────────────
 app.set("view engine", "ejs");

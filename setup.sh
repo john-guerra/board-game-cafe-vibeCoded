@@ -6,16 +6,16 @@
 
 set -e
 
-DB="boardgame_cafe.db"
+DB_FILE="app/boardgame_cafe.db"
 
 echo "==> Removing old database (if any)..."
-rm -f "$DB"
+rm -f "$DB_FILE"
 
 echo "==> Creating tables..."
-sqlite3 "$DB" < sql/create_tables.sql
+sqlite3 "$DB_FILE" < sql/create_tables.sql
 
 echo "==> Populating test data..."
-sqlite3 "$DB" < sql/populate_data.sql
+sqlite3 "$DB_FILE" < sql/populate_data.sql
 
 echo ""
 echo "==> Database created successfully: $DB"
