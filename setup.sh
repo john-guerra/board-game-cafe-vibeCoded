@@ -6,7 +6,7 @@
 
 set -e
 
-DB_FILE="app/boardgame_cafe.db"
+DB_FILE="boardgame_cafe.db"
 
 echo "==> Removing old database (if any)..."
 rm -f "$DB_FILE"
