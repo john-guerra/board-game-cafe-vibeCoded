@@ -136,6 +136,7 @@ This was a discussion prompt, not a generation prompt. The model recommended sti
 > **User prompt:** "help me deploy this [part 2]"
 
 **What the model did:**
+- Utilized the **Vercel MCP (Model Context Protocol) Server** to list project deployments, and the **GitHub MCP Server** (via GitHub API) to monitor deployment build statuses after consecutive pushes.
 - Discovered 500 errors on the deployed Vercel application triggered by `sql.js` attempting to parse WASM binaries that the Serverless Webpack bundler stripped out.
 - Restructured the entire application (`package.json`, `index.js`, `views`, database template) to the root repository to adhere to Vercel's zero-config Express philosophy, ensuring standard dependency installation and bundling.
 - Replaced the brittle `sql.js` WASM implementation entirely with the new, experimental built-in `node:sqlite` module available in Node.js 22.5.0+.
