@@ -7,6 +7,7 @@ const app = express();
 const PORT = 3000;
 
 // Database lives at the repository root
+// In Vercel, the file system is read-only. We rely on the bundled SQLite file.
 const DB_PATH = path.join(__dirname, "..", "boardgame_cafe.db");
 
 // ── Middleware ────────────────────────────────────────────────
@@ -233,8 +234,23 @@ app.post("/games/:id/delete", (req, res) => {
 });
 
 // ── Start ────────────────────────────────────────────────────
-initDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Board Game Cafe running at http://localhost:${PORT}`);
+if (process.env.NODE_ENV !== "production") {
+  initDB().then(() => {
+    app.listen(PORT, () => {
+      console.log(`Board Game Cafe running at http://localhost:${PORT}`);
+    });
   });
-});
+} else {
+  // Setup for Vercel: We need to load the DB synchronously when the serverless function cold starts
+  // or return the app so Vercel can manage it
+  const SQL = require("sql.js");
+  SQL().then((sql) => {
+    const buf = fs.readFileSync(DB_PATH);
+    db = new sql.Database(buf);
+    db.run("PRAGMA foreign_keys = ON;");
+    console.log(`Database loaded from ${DB_PATH} for Vercel`);
+  });
+}
+
+// Export for Vercel
+module.exports = app;

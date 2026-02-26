@@ -121,7 +121,15 @@ This was a discussion prompt, not a generation prompt. The model recommended sti
 - Created `.agent/rules/project-rules.md` (with `prompt: true` frontmatter) containing the guidelines originally specified in `AGENTS.md`.
 - Deleted the now-deprecated `.antigravityrules` and `AGENTS.md` files from the root.
 - Updated `.cursorrules` to point to the new `.agent/rules/project-rules.md` file.
-- Updated `docs/AI_USAGE.md` to log this interaction and committed the changes.
+### Prompt 8: Preparing for Vercel Deployment
+
+> **User prompt:** "help me deploy this" followed by approving the Free Tier Option A via Vercel.
+
+**What the model did:**
+- Analyzed the codebase and determined it needed `vercel.json` to map routing to the `app/app.js` file for serverless deployment.
+- Refactored `app/app.js` to unconditionally export the `app` instance when running in a `production` environment (which Vercel sets), while continuing to `app.listen()` when running locally in development. 
+- Refactored the database initialization in `app.js` to synchronously load via `require("sql.js")` during cold-starts on Vercel. Vercel provides a read-only filesystem (except `/tmp`), so we bound the application to the static `boardgame_cafe.db` file already present in the root repository.
+- Successfully configured the repository so the user can just push to GitHub and import it directly into Vercel for immediate deployment.
 
 ---
 
