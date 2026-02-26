@@ -2,9 +2,9 @@
   "name": "boardgame-cafe-app",
   "version": "1.0.0",
   "description": "Node + Express + EJS CRUD application for the Board Game Cafe database",
-  "main": "app.js",
+  "main": "app/app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app/app.js"
   },
   "keywords": ["sqlite", "express", "ejs", "boardgame"],
   "license": "MIT",
