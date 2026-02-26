@@ -92,6 +92,27 @@ This was a discussion prompt, not a generation prompt. The model recommended sti
 **What went wrong (and was caught during testing):**
 - The FK enforcement bug from `sql.js` was discovered during the end-to-end test. The model tested deleting Publisher #1 (which has games), and the DELETE succeeded when it shouldn't have. The model then added application-level FK checks (querying child tables before allowing deletion) and re-tested to confirm they worked.
 
+### Prompt 5: Fixing the Directory Structure
+
+> **User prompt:** "I vibe coded this project using claude web, and it seems like the project structure is wrong, please help me organizing it so it will run"
+
+**What the model did:**
+- Analyzed the repository structure based on the `README.md` and reconstructed the proper folder layout (`docs/`, `diagrams/`, `sql/`, `sql/queries/`, and `app/`).
+- Moved all the flat files into their correct respective directories.
+- Discovered that the EJS view files were completely missing. Created the `views` directory under `app/` and wrote the necessary templates (`index.ejs`, `publishers/index.ejs`, `games/index.ejs`, and their forms) based on what `app.js` expected.
+- Ran `bash setup.sh` to initialize the database and `npm install` inside `app/` to install dependencies.
+- Confirmed the web server was running and serving pages correctly without errors.
+
+### Prompt 6: Committing Changes and Documenting AI Usage
+
+> **User prompt:** "commit" followed by "I want you to add to that file our interactions in here and actually all the interactions with have with AI. Actually, please create an AGENTS.md file with relevant information for continuing developing this application and include in it a rule that says that every AI prompt should be logged in the docs/AI_USAGE.md file. Then make sure to create an antigravity rule file and to refer to the AGENTS.md file there"
+
+**What the model did:**
+- Executed `git add`, `git commit`, and `git push` to save the directory structure reorganization and EJS views into version control.
+- Updated this very document (`docs/AI_USAGE.md`) to append these recent interactions.
+- Created an `AGENTS.md` file to define consistent workspace rules and guidelines for AI agents, specifically mandating that all future AI interactions be logged.
+- Created `.antigravityrules` and `.cursorrules` containing directives that force any AI agent to read `AGENTS.md` before making changes.
+
 ---
 
 ## 3. What the AI Did Well
