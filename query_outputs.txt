@@ -1,0 +1,123 @@
+============================================================
+  Board Game Cafe Database — Query Output Documentation
+============================================================
+
+Generated from a clean database build.
+Tables: Publisher(8), Game(15), Category(8), GameCategory(35),
+        Member(12), PlaySession(20), SessionPlayer(59)
+
+============================================================
+-- ============================================================
+-- Query 1: Three-Table Join
+-- Description: List all games with their publisher name, 
+--   country of origin, and average player rating from sessions.
+--   Joins Game -> Publisher and Game -> PlaySession -> SessionPlayer.
+============================================================
+game_title         publisher             publisher_country  complexity_rating  times_played  avg_rating  num_ratings
+-----------------  --------------------  -----------------  -----------------  ------------  ----------  -----------
+Arkham Horror LCG  Fantasy Flight Games  USA                3.5                1             9.5         2          
+Gloomhaven         Cephalofair Games     USA                3.9                1             9.0         4          
+Viticulture        Stonemaier Games      USA                2.9                1             8.7         3          
+Azul               Days of Wonder        USA                1.8                1             8.5         2          
+Everdell           Stonemaier Games      USA                2.8                1             8.5         2          
+Wingspan           Stonemaier Games      USA                2.5                3             8.0         7          
+Scythe             Stonemaier Games      USA                3.4                1             8.0         3          
+Ticket to Ride     Days of Wonder        USA                1.8                2             8.0         5          
+Pandemic           Z-Man Games           Canada             2.4                2             8.0         4          
+Codenames          Czech Games Edition   Czech Republic     1.3                2             7.9         9          
+7 Wonders          Repos Production      Belgium            2.3                1             7.5         4          
+Dixit              Repos Production      Belgium            1.2                1             7.5         6          
+Splendor           Days of Wonder        USA                1.8                1             7.5         2          
+Catan              Ravensburger          Germany            2.3                2             6.8         6          
+Terraforming Mars  Fantasy Flight Games  USA                3.2                0                         0          
+
+============================================================
+-- ============================================================
+-- Query 2: Subquery
+-- Description: Find members who have played at least one game
+--   whose complexity rating is above the overall average 
+--   complexity of all games in the library. Uses a subquery
+============================================================
+member_name     email                    join_date 
+--------------  -----------------------  ----------
+Alice Chen      alice.chen@email.com     2024-01-15
+Carol Johnson   carol.j@email.com        2024-01-08
+David Kim       david.kim@email.com      2024-03-12
+Bob Martinez    bob.martinez@email.com   2024-02-20
+Iris Novak      iris.novak@email.com     2024-06-15
+Frank O'Brien   frank.obrien@email.com   2024-02-14
+Jake Patel      jake.patel@email.com     2024-03-05
+Leo Reeves      leo.reeves@email.com     2024-08-19
+Karen Schmidt   karen.schmidt@email.com  2024-07-01
+Grace Tanaka    grace.tanaka@email.com   2024-05-22
+Henry Williams  henry.w@email.com        2024-01-30
+
+============================================================
+-- ============================================================
+-- Query 3: GROUP BY with HAVING clause
+-- Description: Find game categories where the average player 
+--   rating is at least 8.0 and there have been at least 3 
+--   ratings recorded. Shows which categories are most loved.
+============================================================
+category_name     games_in_category  total_ratings  avg_rating  min_rating  max_rating
+----------------  -----------------  -------------  ----------  ----------  ----------
+Adventure         2                  6              9.17        8           10        
+Cooperative       3                  10             8.7         7           10        
+Worker Placement  3                  8              8.38        7           9         
+Deck-Building     2                  6              8.17        7           10        
+Engine-Building   4                  14             8.0         7           9         
+
+============================================================
+-- ============================================================
+-- Query 4: Complex Search Criterion
+-- Description: Find games suitable for a "date night" - games
+--   that support exactly 2 players, take less than 60 minutes,
+--   are currently available, have a complexity rating between
+============================================================
+title           player_range  play_time_minutes  complexity_rating  copies_owned  categories                     
+--------------  ------------  -----------------  -----------------  ------------  -------------------------------
+Ticket to Ride  2-5           45                 1.8                3             Strategy,Family                
+Azul            2-4           30                 1.8                3             Strategy,Family                
+Splendor        2-4           30                 1.8                3             Strategy,Family,Engine-Building
+7 Wonders       2-7           30                 2.3                2             Strategy,Deck-Building         
+Pandemic        2-4           45                 2.4                2             Strategy,Cooperative           
+
+============================================================
+-- ============================================================
+-- Query 5: Advanced Query Mechanisms
+-- Uses: RCTE (Recursive CTE for member engagement tiers),
+--   PARTITION BY (rank games within each publisher),
+--   and CASE/WHEN (classify games by complexity).
+============================================================
+publisher             title              avg_rating  play_count  rank_within_publisher  weight_class
+--------------------  -----------------  ----------  ----------  ---------------------  ------------
+Cephalofair Games     Gloomhaven         9.0         1           1                      Heavy       
+Czech Games Edition   Codenames          7.9         2           1                      Light       
+Days of Wonder        Azul               8.5         1           1                      Medium-Light
+Days of Wonder        Ticket to Ride     8.0         2           2                      Medium-Light
+Days of Wonder        Splendor           7.5         1           3                      Medium-Light
+Fantasy Flight Games  Arkham Horror LCG  9.5         1           1                      Medium-Heavy
+Fantasy Flight Games  Terraforming Mars                          2                      Medium-Heavy
+Ravensburger          Catan              6.8         2           1                      Medium-Light
+Repos Production      7 Wonders          7.5         1           1                      Medium-Light
+Repos Production      Dixit              7.5         1           1                      Light       
+Stonemaier Games      Viticulture        8.7         1           1                      Medium-Heavy
+Stonemaier Games      Everdell           8.5         1           2                      Medium-Heavy
+Stonemaier Games      Wingspan           8.0         3           3                      Medium-Light
+Stonemaier Games      Scythe             8.0         1           3                      Medium-Heavy
+Z-Man Games           Pandemic           8.0         2           1                      Medium-Light
+member_name     session_count  avg_rating_given  engagement_tier
+--------------  -------------  ----------------  ---------------
+Alice Chen      8              7.9               Gold           
+Bob Martinez    7              8.3               Gold           
+Carol Johnson   6              8.2               Gold           
+David Kim       6              7.3               Gold           
+Eva Petrov      6              8.2               Gold           
+Frank O'Brien   5              7.4               Silver         
+Grace Tanaka    5              8.2               Silver         
+Henry Williams  4              8.3               Silver         
+Iris Novak      3              7.3               Silver         
+Jake Patel      3              8.0               Silver         
+Karen Schmidt   3              8.3               Silver         
+Leo Reeves      3              8.0               Silver         
+
