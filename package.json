@@ -6,11 +6,18 @@
   "scripts": {
     "start": "node index.js"
   },
-  "keywords": ["sqlite", "express", "ejs", "boardgame"],
+  "keywords": [
+    "sqlite",
+    "express",
+    "ejs",
+    "boardgame"
+  ],
   "license": "MIT",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "dependencies": {
     "ejs": "^3.1.9",
-    "express": "^4.21.0",
-    "sql.js": "^1.14.0"
+    "express": "^4.21.0"
   }
 }

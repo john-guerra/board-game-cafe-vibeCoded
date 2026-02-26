@@ -1,13 +1,10 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-const initSqlJs = require("sql.js");
+const { DatabaseSync } = require("node:sqlite");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-// Database lives at the app level
-// In Vercel, the file system is read-only. We rely on the bundled SQLite file.
-const DB_PATH = path.join(__dirname, "boardgame_cafe.db");
 
 // ── Middleware ────────────────────────────────────────────────
 app.set("view engine", "ejs");
@@ -17,43 +14,45 @@ app.use(express.urlencoded({ extended: true }));
 // ── Database helpers ─────────────────────────────────────────
 let db;
 
-async function initDB() {
-  if (!fs.existsSync(DB_PATH)) {
-    console.error(`ERROR: Database not found at ${DB_PATH}`);
+function initDB() {
+  const isProd = process.env.NODE_ENV === "production";
+  // In Vercel, the file system restricts writes to /tmp
+  const targetDB = isProd ? "/tmp/boardgame_cafe.db" : path.join(__dirname, "boardgame_cafe.db");
+
+  if (isProd && !fs.existsSync(targetDB)) {
+    // Copy the bundled read-only template to the writable directory
+    fs.copyFileSync(path.join(__dirname, "boardgame_cafe.db"), targetDB);
+  } else if (!fs.existsSync(targetDB)) {
+    console.error(`ERROR: Database not found at ${targetDB}`);
     console.error("Run 'bash setup.sh' from the repository root first.");
     process.exit(1);
   }
-  const SQL = await initSqlJs();
-  const buf = fs.readFileSync(DB_PATH);
-  db = new SQL.Database(buf);
-  db.run("PRAGMA foreign_keys = ON;");
-  console.log(`Database loaded from ${DB_PATH}`);
+
+  // node:sqlite operates synchronously
+  db = new DatabaseSync(targetDB);
+  db.exec("PRAGMA foreign_keys = ON;");
+  console.log(`Database loaded from ${targetDB}`);
 }
 
-function saveDB() {
-  const data = db.export();
-  fs.writeFileSync(DB_PATH, Buffer.from(data));
+function runQuery(sql, params = []) {
+  const stmt = db.prepare(sql);
+  return stmt.run(...params);
 }
 
 function queryAll(sql, params = []) {
   const stmt = db.prepare(sql);
-  stmt.bind(params);
-  const rows = [];
-  while (stmt.step()) rows.push(stmt.getAsObject());
-  stmt.free();
-  return rows;
+  return stmt.all(...params);
 }
 
 function queryOne(sql, params = []) {
-  const rows = queryAll(sql, params);
-  return rows.length > 0 ? rows[0] : null;
+  const stmt = db.prepare(sql);
+  const result = stmt.get(...params);
+  return result === undefined ? null : result;
 }
 
 // ── HOME ─────────────────────────────────────────────────────
-app.get("/", async (req, res) => {
-  if (process.env.NODE_ENV === "production" && !db) {
-    await initDB();
-  }
+app.get("/", (req, res) => {
+  if (!db) initDB();
   const stats = {
     publishers: queryOne("SELECT COUNT(*) AS n FROM Publisher").n,
     games:      queryOne("SELECT COUNT(*) AS n FROM Game").n,
@@ -67,10 +66,8 @@ app.get("/", async (req, res) => {
 //  PUBLISHER CRUD
 // ══════════════════════════════════════════════════════════════
 
-app.get("/publishers", async (req, res) => {
-  if (process.env.NODE_ENV === "production" && !db) {
-    await initDB();
-  }
+app.get("/publishers", (req, res) => {
+  if (!db) initDB();
   const publishers = queryAll(`
     SELECT p.*, COUNT(g.game_id) AS game_count
     FROM Publisher p LEFT JOIN Game g ON p.publisher_id = g.publisher_id
@@ -78,34 +75,27 @@ app.get("/publishers", async (req, res) => {
   res.render("publishers/index", { publishers, message: req.query.message || null });
 });
 
-app.get("/publishers/new", async (req, res) => {
-  if (process.env.NODE_ENV === "production" && !db) {
-    await initDB();
-  }
+app.get("/publishers/new", (req, res) => {
+  if (!db) initDB();
   res.render("publishers/form", { publisher: null, error: null });
 });
 
-app.post("/publishers", async (req, res) => {
-  if (process.env.NODE_ENV === "production" && !db) {
-    await initDB();
-  }
+app.post("/publishers", (req, res) => {
+  if (!db) initDB();
   const { name, country, website, founded_year } = req.body;
   try {
-    db.run(
+    runQuery(
       "INSERT INTO Publisher (name, country, website, founded_year) VALUES (?, ?, ?, ?)",
       [name, country, website || null, founded_year ? Number(founded_year) : null]
     );
-    saveDB();
     res.redirect("/publishers?message=Publisher created successfully");
   } catch (err) {
     res.render("publishers/form", { publisher: req.body, error: err.message });
   }
 });
 
-app.get("/publishers/:id/edit", async (req, res) => {
-  if (process.env.NODE_ENV === "production" && !db) {
-    await initDB();
-  }
+app.get("/publishers/:id/edit", (req, res) => {
+  if (!db) initDB();
   const publisher = queryOne(
     "SELECT * FROM Publisher WHERE publisher_id = ?", [Number(req.params.id)]
   );
@@ -113,19 +103,16 @@ app.get("/publishers/:id/edit", async (req, res) => {
   res.render("publishers/form", { publisher, error: null });
 });
 
-app.post("/publishers/:id", async (req, res) => {
-  if (process.env.NODE_ENV === "production" && !db) {
-    await initDB();
-  }
+app.post("/publishers/:id", (req, res) => {
+  if (!db) initDB();
   const { name, country, website, founded_year } = req.body;
   try {
-    db.run(
+    runQuery(
       `UPDATE Publisher SET name=?, country=?, website=?, founded_year=?
        WHERE publisher_id=?`,
       [name, country, website || null, founded_year ? Number(founded_year) : null,
        Number(req.params.id)]
     );
-    saveDB();
     res.redirect("/publishers?message=Publisher updated successfully");
   } catch (err) {
     res.render("publishers/form", {
@@ -134,12 +121,9 @@ app.post("/publishers/:id", async (req, res) => {
   }
 });
 
-app.post("/publishers/:id/delete", async (req, res) => {
-  if (process.env.NODE_ENV === "production" && !db) {
-    await initDB();
-  }
+app.post("/publishers/:id/delete", (req, res) => {
+  if (!db) initDB();
   const id = Number(req.params.id);
-  // Application-level FK check (sql.js WASM doesn't enforce FK reliably)
   const gameCount = queryOne(
     "SELECT COUNT(*) AS n FROM Game WHERE publisher_id = ?", [id]
   );
@@ -150,8 +134,7 @@ app.post("/publishers/:id/delete", async (req, res) => {
     );
   }
   try {
-    db.run("DELETE FROM Publisher WHERE publisher_id = ?", [id]);
-    saveDB();
+    runQuery("DELETE FROM Publisher WHERE publisher_id = ?", [id]);
     res.redirect("/publishers?message=Publisher deleted successfully");
   } catch (err) {
     res.redirect(
@@ -164,10 +147,8 @@ app.post("/publishers/:id/delete", async (req, res) => {
 //  GAME CRUD
 // ══════════════════════════════════════════════════════════════
 
-app.get("/games", async (req, res) => {
-  if (process.env.NODE_ENV === "production" && !db) {
-    await initDB();
-  }
+app.get("/games", (req, res) => {
+  if (!db) initDB();
   const games = queryAll(`
     SELECT g.*, p.name AS publisher_name
     FROM Game g INNER JOIN Publisher p ON g.publisher_id = p.publisher_id
@@ -175,21 +156,17 @@ app.get("/games", async (req, res) => {
   res.render("games/index", { games, message: req.query.message || null });
 });
 
-app.get("/games/new", async (req, res) => {
-  if (process.env.NODE_ENV === "production" && !db) {
-    await initDB();
-  }
+app.get("/games/new", (req, res) => {
+  if (!db) initDB();
   const publishers = queryAll("SELECT publisher_id, name FROM Publisher ORDER BY name");
   res.render("games/form", { game: null, publishers, error: null });
 });
 
-app.post("/games", async (req, res) => {
-  if (process.env.NODE_ENV === "production" && !db) {
-    await initDB();
-  }
+app.post("/games", (req, res) => {
+  if (!db) initDB();
   const b = req.body;
   try {
-    db.run(
+    runQuery(
       `INSERT INTO Game (title, min_players, max_players, play_time_minutes,
          complexity_rating, year_published, copies_owned, is_available, publisher_id)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -200,7 +177,6 @@ app.post("/games", async (req, res) => {
        Number(b.copies_owned) || 1, b.is_available ? 1 : 0,
        Number(b.publisher_id)]
     );
-    saveDB();
     res.redirect("/games?message=Game created successfully");
   } catch (err) {
     const publishers = queryAll("SELECT publisher_id, name FROM Publisher ORDER BY name");
@@ -208,23 +184,19 @@ app.post("/games", async (req, res) => {
   }
 });
 
-app.get("/games/:id/edit", async (req, res) => {
-  if (process.env.NODE_ENV === "production" && !db) {
-    await initDB();
-  }
+app.get("/games/:id/edit", (req, res) => {
+  if (!db) initDB();
   const game = queryOne("SELECT * FROM Game WHERE game_id = ?", [Number(req.params.id)]);
   if (!game) return res.status(404).send("Game not found");
   const publishers = queryAll("SELECT publisher_id, name FROM Publisher ORDER BY name");
   res.render("games/form", { game, publishers, error: null });
 });
 
-app.post("/games/:id", async (req, res) => {
-  if (process.env.NODE_ENV === "production" && !db) {
-    await initDB();
-  }
+app.post("/games/:id", (req, res) => {
+  if (!db) initDB();
   const b = req.body;
   try {
-    db.run(
+    runQuery(
       `UPDATE Game SET title=?, min_players=?, max_players=?, play_time_minutes=?,
          complexity_rating=?, year_published=?, copies_owned=?, is_available=?,
          publisher_id=? WHERE game_id=?`,
@@ -235,7 +207,6 @@ app.post("/games/:id", async (req, res) => {
        Number(b.copies_owned) || 1, b.is_available ? 1 : 0,
        Number(b.publisher_id), Number(req.params.id)]
     );
-    saveDB();
     res.redirect("/games?message=Game updated successfully");
   } catch (err) {
     const publishers = queryAll("SELECT publisher_id, name FROM Publisher ORDER BY name");
@@ -245,12 +216,9 @@ app.post("/games/:id", async (req, res) => {
   }
 });
 
-app.post("/games/:id/delete", async (req, res) => {
-  if (process.env.NODE_ENV === "production" && !db) {
-    await initDB();
-  }
+app.post("/games/:id/delete", (req, res) => {
+  if (!db) initDB();
   const id = Number(req.params.id);
-  // Application-level FK check
   const sessionCount = queryOne(
     "SELECT COUNT(*) AS n FROM PlaySession WHERE game_id = ?", [id]
   );
@@ -261,10 +229,8 @@ app.post("/games/:id/delete", async (req, res) => {
     );
   }
   try {
-    db.run("DELETE FROM Game WHERE game_id = ?", [id]);
-    // Also clean up GameCategory entries
-    db.run("DELETE FROM GameCategory WHERE game_id = ?", [id]);
-    saveDB();
+    runQuery("DELETE FROM Game WHERE game_id = ?", [id]);
+    runQuery("DELETE FROM GameCategory WHERE game_id = ?", [id]);
     res.redirect("/games?message=Game deleted successfully");
   } catch (err) {
     res.redirect("/games?message=" + encodeURIComponent("Cannot delete: " + err.message));
@@ -273,13 +239,10 @@ app.post("/games/:id/delete", async (req, res) => {
 
 // ── Start ────────────────────────────────────────────────────
 if (process.env.NODE_ENV !== "production") {
-  initDB().then(() => {
-    app.listen(PORT, () => {
-      console.log(`Board Game Cafe running at http://localhost:${PORT}`);
-    });
+  initDB();
+  app.listen(PORT, () => {
+    console.log(`Board Game Cafe running at http://localhost:${PORT}`);
   });
-} else {
-  // Expose the app. Routes will initialize DB on the first request if empty.
 }
 
 // Export for Vercel
