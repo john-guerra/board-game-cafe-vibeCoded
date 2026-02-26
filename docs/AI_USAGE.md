@@ -131,6 +131,18 @@ This was a discussion prompt, not a generation prompt. The model recommended sti
 - Refactored the database initialization in `app.js` to synchronously load via `require("sql.js")` during cold-starts on Vercel. Vercel provides a read-only filesystem (except `/tmp`), so we bound the application to the static `boardgame_cafe.db` file already present in the root repository.
 - Successfully configured the repository so the user can just push to GitHub and import it directly into Vercel for immediate deployment.
 
+### Prompt 9: Debugging Serverless SQLite & Vercel Native Zero-config
+
+> **User prompt:** "help me deploy this [part 2]"
+
+**What the model did:**
+- Discovered 500 errors on the deployed Vercel application triggered by `sql.js` attempting to parse WASM binaries that the Serverless Webpack bundler stripped out.
+- Restructured the entire application (`package.json`, `index.js`, `views`, database template) to the root repository to adhere to Vercel's zero-config Express philosophy, ensuring standard dependency installation and bundling.
+- Replaced the brittle `sql.js` WASM implementation entirely with the new, experimental built-in `node:sqlite` module available in Node.js 22.5.0+.
+- Edited `package.json` to enforce `engines: { "node": ">=22.5.0" }`, forcing Vercel's Serverless Runtime to provision the latest version of Node containing native SQLite binaries out-of-the-box.
+- Implemented cold-start logic in `index.js` to synchronously copy the read-only packaged `boardgame_cafe.db` to Vercel's `/tmp` Ephemeral block storage so queries execute smoothly.
+- Successfully achieved live database deployment at `https://board-game-cafe-vibe-coded.vercel.app`.
+
 ---
 
 ## 3. What the AI Did Well
