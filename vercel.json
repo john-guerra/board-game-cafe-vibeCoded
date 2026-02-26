@@ -12,6 +12,11 @@
       "dest": "app/app.js"
     }
   ],
+  "functions": {
+    "app/app.js": {
+      "includeFiles": "app/boardgame_cafe.db"
+    }
+  },
   "env": {
     "NODE_ENV": "production"
   }
