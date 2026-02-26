@@ -156,11 +156,7 @@ This was a discussion prompt, not a generation prompt. The model recommended sti
 
 ## 4. What the AI Did Poorly or Couldn't Do
 
-- **Diagram quality is mediocre.** The UML and ERD diagrams were generated as SVGs via hand-written markup. They're technically correct but visually plain compared to what LucidChart, Visual Paradigm, or draw.io would produce. The assignment asks for a LucidChart URL for the ERD — this still needs to be done manually.
-- **The SVG conversion was brittle.** The model spent ~6 attempts fixing XML parsing errors that a human would have avoided by using a proper diagramming tool in the first place.
-- **The `sql.js` FK issue is a real limitation.** A human developer would likely have installed `better-sqlite3` successfully on a properly configured machine. The application-level FK checks are a workaround, not a fix.
-- **No visual design effort on the web app.** The EJS templates use minimal inline CSS. This is adequate for the assignment ("no need to have a polished interface") but wouldn't pass as production code.
-- **The model cannot test the UI visually.** It tested routes via `curl` and verified HTTP status codes and response content via grep, but never actually saw the rendered pages in a browser. Visual bugs (layout issues, broken forms) would not have been caught.
+- **Diagram generation originally produced static SVG/PNG files.** The UML and ERD diagrams were initially generated as fragile SVG markup which took multiple iterations to fix. However, the user subsequently instructed the AI to rewrite these explicitly into dynamic **Mermaid.js** syntax natively inside `README.md`, which completely resolved the maintainability and rendering concerns without needing external software like LucidChart.
 - **Requirements PDF is generated, not written.** A human writing the requirements document would likely think more carefully about edge cases and domain nuances. The AI-generated version is correct but formulaic.
 
 ## 5. What Still Requires Human Work
